@@ -1,4 +1,4 @@
-from Crypto.Cipher import XOR
+from Crypto.Cipher import XOR, AES
 from operator import itemgetter
 import util, FrequencyFinder, sys, base64
 
@@ -12,7 +12,7 @@ def xor(input1, input2):
 	return "".join(chr(ord(x) ^ ord(y)) for x, y in zip(input1, input2)).encode("hex")
 
 ## 3 Single-byte XOR Cipher ##
-def SBXDecipher(cipherText):
+def SBXdecipher(cipherText):
 	
 	plaintext = []
 	scores = []
@@ -49,7 +49,7 @@ def detectSCX():
 	scores = []
 
 	for x in lines:
-		tmp = singleCharXOR.decipher(x)
+		tmp = SBXdecipher(x)
 		plaintexts.append (tmp[0])
 		scores.append (tmp[1])
 
@@ -156,7 +156,7 @@ def breakRKX():
 	# Take the most likely key for each Chunck and assemble it to a KEY
 	key = ""
 	for chunk in chunks:
-		key += singleCharXOR.decipher(base64.b16decode(chunk))[2]
+		key += SBXdecipher(base64.b16decode(chunk))[2]
 
 
 	## DECRYPT
@@ -164,7 +164,7 @@ def breakRKX():
 	# Take each byte and decrypt with key
 	plaintext = ""
 	for i in range(0,len(bytes)):
-		plaintext += decrypt(bytes[i],key[i % len(key)])
+		plaintext += RKXdecrypt(bytes[i],key[i % len(key)])
 	 
 	print "Key:", key
 	print "Plain Text:\n",plaintext
@@ -208,31 +208,33 @@ def detectECB():
 
 
 if __name__ =='__main__':
-	## 1 Convert to base64 and back ##
+
+	print "## 1 Convert to base64 and back ##\n"
 	print util.b16tob64("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d")
 
-	## 2 Fixed XOR ##
-    print xor(base64.b16decode(sys.argv[1].upper()), base64.b16decode(sys.argv[2].upper()))
+	print "\n\n## 2 Fixed XOR ##\n"
+	print xor(base64.b16decode("AAAA".upper()), base64.b16decode("BBBB".upper()))
 
-    ## Single-byte XOR Cipher ##
-    print SBXdecipher(util.b16decode("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736".upper()))[0]
+	print "\n\n## 3 Single-byte XOR Cipher ##\n"
+	print SBXdecipher(util.b16decode("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736".upper()))[0]
 
-    ## 4 Detect single-character XOR ##
-    print detectSCX
+	print "\n\n## 4 Detect single-character XOR ##\n"
+	print detectSCX
 
-    ## 5 implement repeating-key XOR ##
-    print RKXencrypt()
+	print "\n\n## 5 implement repeating-key XOR ##\n"
+	print RKXencrypt()
 
-    ## 6 Break repeating-key XOR ##
-    print breakRKX()
+	print "\n\n## 6 Break repeating-key XOR ##\n"
+	print breakRKX()
 
-    ## 7 AES in ECB mode ##
+	print "\n\n## 7 AES in ECB mode ##\n"
 	key = "YELLOW SUBMARINE"
+
 	# Open file and read contents into single buffer
 	with open('7.txt') as f:
 	    data=''.join(util.b64decode(line.strip()) for line in f)
 	
 	print AESinECBdecrypt(key,data)
 
-	## 8 Detect AES in ECB mode ##
+	print "\n\n## 8 Detect AES in ECB mode ##\n"
 	print detectECB()
