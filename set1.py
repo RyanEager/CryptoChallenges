@@ -56,6 +56,8 @@ def letterFrequency(message):
 
 
 ## 4 Detect single-character XOR ##
+##TODO broke when rewriting frequency finder ## 
+
 def detectSCX():
 	lines = [util.b16decode(line.strip().upper()) for line in open('4.txt')]
 
@@ -175,6 +177,8 @@ def AESinECBencrypt(key,data):
 	return cipher.encrypt(data)
 
 ## 8 Detect AES in ECB mode ##
+
+## TODO Fix Logic ##
 
 def detectECB():
 	# Open file 
